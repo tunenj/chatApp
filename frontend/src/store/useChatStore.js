@@ -2,6 +2,7 @@
 import { axiosInstance } from "../lib/axios";
 import { toast } from "react-hot-toast";
 
+
  export const useChatStore = create((set,get) =>({
     allContacts: [],
     chats: [],
@@ -10,7 +11,7 @@ import { toast } from "react-hot-toast";
     selectedUser:null,
     isUsersLoading:false,
     isMessagesLoading:false,
-    isSoundEnabled: localStorage.getItem("isSoundEnabled") === true,
+    isSoundEnabled: JSON.parse(localStorage.getItem("isSoundEnabled")) === true,
 
     toggleSound: () => {
         localStorage.setItem("isSoundEnabled", !get().isSoundEnabled)
@@ -43,4 +44,17 @@ import { toast } from "react-hot-toast";
             set({ isUsersLoading: false });
         }
     },
+
+   getMessagesByUserId: async (userId) => {
+    set({ isMessagesLoading: true });
+    try {
+      const res = await axiosInstance.get(`/messages/${userId}`);
+      set({ messages: res.data });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
+    } finally {
+      set({ isMessagesLoading: false });
+    }
+  },
+
  }))
